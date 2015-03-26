@@ -1,2 +1,0 @@
-http://bootsnipp.com/
-http://getbootstrap.com/components/#media
