@@ -27,9 +27,14 @@
 .stylish-input-group .form-control{
 	border-right:0;
 	box-shadow:0 0 0;
-	border-color:#d70000;
+	border-color:grey;
 }
 .stylish-input-group button .btn-custom{
     border:0;
     background:transparent;
+}
+
+mark {
+    background-color: yellow;
+    color: black;
 }
