@@ -7,7 +7,7 @@
 	<meta name="description" content="">
 	<meta name="author" content="">
 	<link rel="icon" href="../../favicon.ico">
-
+	<script language="JavaScript" src="js/gen_validatorv31.js" type="text/javascript"></script>
 	<title>Digital HUAC</title>
 
 	<!-- Bootstrap core CSS -->
@@ -91,49 +91,32 @@
         </div>
       </div>
 	</div>
-	<title>Contact Form</title>
-
-	<style type="text/css">
-		.antispam { display:none;}
-	</style>
-
-	<script type="text/javascript">
-		// split your email into two parts and remove the @ symbol
-		var first = "digitalhuac";
-		var last = "gmail.com";
-	</script>
-
-</head>
-<body>
-
-
-	<form method="post" action="submit.php">
-
-		<p>Your name:
-		<br /><input name="name" /></p>
-
-		<p>Your email:
-		<br /><input name="email" /></p>
-
-		<p class="antispam">Leave this empty:
-		<br /><input name="url" /></p>
-
-		<p>Your message:
-		<br /><textarea name="message" rows="10" cols="50"></textarea></p>
-
-		<p><input type="submit" value="Send" /></p>
-
-	</form>
-
-
-	<p>My e-mail address:
-	<script type="text/javascript">
-		document.write('<a href="mailto:'+first + '@' + last+'">'+first + '@' + last+'<\/a>');
-	</script>
-	<noscript>
-	Please enable javascript or use the contact form.
-	</noscript>
+	!-- Start code for the form-->
+<form method="post" name="myemailform" action="form-to-email.php">
+	<p>
+		<label for='name'>Enter Name: </label><br>
+		<input type="text" name="name">
 	</p>
+	<p>
+		<label for='email'>Enter Email Address:</label><br>
+		<input type="text" name="email">
+	</p>
+	<p>
+		<label for='message'>Enter Message:</label> <br>
+		<textarea name="message"></textarea>
+	</p>
+	<input type="submit" name='submit' value="submit">
+</form>
+<script language="JavaScript">
+// Code for validating the form
+// Visit http://www.javascript-coder.com/html-form/javascript-form-validation.phtml
+// for details
+var frmvalidator  = new Validator("myemailform");
+frmvalidator.addValidation("name","req","Please provide your name");
+frmvalidator.addValidation("email","req","Please provide your email");
+frmvalidator.addValidation("email","email","Please enter a valid email address");
+</script>
+<p>
 	<!-- Site footer -->
 	<footer class="footer">
 		<a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png" /></a><br /><span xmlns:dct="http://purl.org/dc/terms/" property="dct:title">Digital HUAC</span> by <a xmlns:cc="http://creativecommons.org/ns#" href="www.digitalhuac.com" property="cc:attributionName" rel="cc:attributionURL">Digital HUAC</a> is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.
