@@ -38,3 +38,11 @@ mark {
     background-color: yellow;
     color: black;
 }
+
+/* Color blocks
+-------------------------------------------------- */
+.bg-red {
+  background: #d70000 !important;
+  color: white !important;
+  border-color: #d70000 !important;
+}
