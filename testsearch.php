@@ -167,7 +167,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <li><a href="search.html">Search</a></li>
             <li><a href="browse.html">Browse</a></li>
             <li><a href="huac_about.html">HUAC History</a></li>
-            <li><a href="help.html">Help</a></li>
             <li><a href="project_about.html">About the Project</a></li>
             <li><a href="contact.html">Contact</a></li>
           </ul>
