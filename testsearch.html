@@ -1,131 +1,4 @@
-<?php
-require_once("search_config.php");
-require_once('vendor/autoload.php');
-// include the guzzler library
-use GuzzleHttp\Client;
 
-// declare variables for sanity
-$search_terms = $witness_type = $query = '';
-// search_terms = (string) keyword search items
-// witness_type = (int) type of witness (made it an int for security/validation pruposes)
-// query = (string) the concatenated doccloud api request
-$q = $options = [];
-// q = the doccloud "q" query, stored as an array of query terms (which will be imploded with spaces when building out the api request, $query)
-// options = an array holding the rest of the api request options. stored as an array for code readability and customizability (e.g. via checkboxes on the frontend)
-
-// search options based on doccloud api
-$options = [
-    'data=true',
-    'annotation=true',
-    'per_page=100',
-    'page=1',
-    'mentions=3',
-    'sections=true'];
-
-// process post action
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $searchparameterposted = 0;
-    // prime the query with the group name since it will be included on all searches
-    $q[] = 'group:dhpraxis';
-
-    // get post variables & sanitize it
-    // Get Hearing Subject
-    $hearingsubject = sanatize_posteddata($_POST['hearingsub']);
-    if(strlen($hearingsubject)!=0)
-    {
-        $searchparameterposted = 1;
-        $q[] = '"Hearing Subject":"'.$array_hearingsubjects[$hearingsubject].'"';
-    }
-    // Get Hearing location
-    $hearinglocation = sanatize_posteddata($_POST['hearingloc']);
-    if(strlen($hearinglocation)!=0)
-    {
-        $searchparameterposted = 1;
-        $q[] = '"Hearing Location":"'.$array_hearinglocations[$hearinglocation].'"';
-    }
-    /*
-    // Get Congress Member Name
-    $congmembernamearray = $_POST['congmembername'];
-    foreach($congmembernamearray as $postcongmemberkey=>$postcongmembervalue)
-    {
-        $congmembername = "";
-        $congmembername = sanatize_posteddata($postcongmembervalue);
-        if(strlen($congmembername)!=0)
-        {
-            $searchparameterposted = 1;
-            $q[] = '"Congressional Member Name '.($postcongmemberkey+1).'":"'.$array_congressmembersnames[$congmembername].'"';
-       }
-    }
-    // Get Staff Investigator Name
-    $staffinvestigatornamearray = $_POST['staffinvestigatorname'];
-    foreach($staffinvestigatornamearray as $poststaffinvestigatorkey=>$poststaffinvestigatorvalue)
-    {
-        $staffinvestigatorname = "";
-        $staffinvestigatorname = sanatize_posteddata($poststaffinvestigatorvalue);
-        if(strlen($staffinvestigatorname)!=0)
-        {
-            $searchparameterposted = 1;
-            $q[] = '"Staff Investigator Name '.($poststaffinvestigatorkey+1).'":"'.$array_staffinvestigatorsnames[$staffinvestigatorname].'"';
-       }
-    }
-    */
-    // Get Witness Occupation
-    $witnessoccupation = sanatize_posteddata($_POST['witnessoccupation']);
-    if(strlen($witnessoccupation)!=0)
-    {
-        $searchparameterposted = 1;
-        $q[] = '"Witness Occupation":"'.$array_witnessoccuptions[$witnessoccupation].'"';
-    }
-    // Get Witness Organizational Affiliation
-    $witnessorgaffilation = sanatize_posteddata($_POST['witnessorgaffilation']);
-    if(strlen($witnessorgaffilation)!=0)
-    {
-        $searchparameterposted = 1;
-        $q[] = '"Witness Organizational Affiliation":"'.$array_witnessorgaffiliation[$witnessorgaffilation].'"';
-    }
-    // Get Witness Attorney
-    $witnessattorney = sanatize_posteddata($_POST['witnessattorney']);
-    if(strlen($witnessattorney)!=0)
-    {
-        $searchparameterposted = 1;
-        $q[] = '"Witness Attorney":"'.$array_witnessattorney[$witnessattorney].'"';
-    }
-    // Get Witness Attorney
-    $witnesstype = sanatize_posteddata($_POST['witnesstype']);
-    if(strlen($witnesstype)!=0)
-    {
-        $searchparameterposted = 1;
-        $q[] = '"Witness Type":"'.$array_witnesstype[$witnesstype].'"';
-    }
-
-    $fetcheddocuments = array();
-    if($searchparameterposted==1)
-    {
-        // build the api request string:
-        $query = 'https://www.documentcloud.org/api/search.json?'; // the api request base
-        $query .= implode('&', $options); // concatenate all of the options, separated by ampersands per "get"/api request specs
-        $query .= '&q=' . implode(' ',$q); // add the query terms (the &q= is the "get" variable for the query)
-
-        // setup guzzler client and submit the query
-        $client = new Client();
-        $response = $client->get($query);
-        // store the guzzler response as a json variable
-        $json = $response->json();
-
-        foreach($json['documents'] as $id => $doc)
-        {
-            $title = $doc['title'];
-            $thumbnail = $doc['resources']['thumbnail'];
-            $documenturl = $doc["canonical_url"];
-            $fetcheddocuments[] = array(
-                                        "title"=>$title,
-                                        "thumbnail"=>$thumbnail,
-                                        "documenturl"=>$documenturl
-                                    );
-        }
-    }
-}
-?>
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -232,33 +105,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
               <!-- begin accordion group section 2 content-->
               <div id="collapseTwo" class="panel-collapse collapse out">
                 <div class="panel-body">
-                  <form class="form-horizontal" action="" method="post">
+                  <!--search form-->
+        <legend>Search the HUAC Transcripts</legend>
+        <form class="form-horizontal" action="" method="post">
         <fieldset>
 
-        <?php
-          if ($_POST['formSubmit'] == "Submit")
-          {
-            $varSearch = $_POST ['search_content'];
-            // Your search term is: echo $_POST ["search_content"];
-            //print (["search_content"]) ;
-            echo $varSearch;
-        }
-        ?>
-            <h3>Hearing</h3>
+                    <h3>Hearing</h3>
             <div class="control-group" style="margin:0px 0px 10px 60px;overflow:hidden">
               <label class="control-label" for="searchinput" style="float:left;margin:0px;padding:0px">Hearing Subject</label>
               <div class="controls">
                   <select name="hearingsub" style="float:left;margin:0px 0px 0px 20px;">
                       <option value="">Select Subject</option>
-                      <?php
-                      foreach($array_hearingsubjects as $hearingsubkey=>$hearingsubvalue)
-                      {
-                      ?>
-                            <option value="<?php echo $hearingsubkey;?>"><?php echo $hearingsubvalue;?></option>
-                      <?php
-                      }
-                      ?>
-                  </select>
+                                                  <option value="1">Communism</option>
+                                                  <option value="2">Hollywood</option>
+                                                  <option value="3">Japanese American Citizens League</option>
+                                                  <option value="4">Japanese war relocation centers</option>
+                                                  <option value="5">National Socialism</option>
+                                        </select>
               </div>
             </div>
             <div class="control-group" style="margin:0px 0px 10px 60px;overflow:hidden">
@@ -266,86 +129,29 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
               <div class="controls" style="float:left">
                   <select name="hearingloc" style="float:left;margin:0px 0px 0px 20px;">
                       <option value="">Select Location</option>
-                      <?php
-                      foreach($array_hearinglocations as $hearinglockey=>$hearinglocvalue)
-                      {
-                      ?>
-                            <option value="<?php echo $hearinglockey;?>"><?php echo $hearinglocvalue;?></option>
-                      <?php
-                      }
-                      ?>
-                  </select>
+                                                  <option value="1">Los Angeles, CA</option>
+                                                  <option value="2">New York, NY</option>
+                                                  <option value="3">Washington, DC</option>
+                                        </select>
               </div>
             </div>
             <!--h3>Investigator</h3-->
-            <?php
-            /*
-            $currentcongressman = 1;
-            while($currentcongressman<=MAX_CONGRESS_MEMBERS)
-            {
-            ?>
-                <div class="control-group" style="margin:0px 0px 10px 60px;overflow:hidden">
-                  <label class="control-label" for="searchinput" style="float:left;margin:0px;padding:0px">Congressional Member Name <?php echo $currentcongressman?></label>
-                  <div class="controls">
-                      <select name="congmembername[]" style="float:left;margin:0px 0px 0px 20px;">
-                          <option value="">Select Name</option>
-                          <?php
-                          foreach($array_congressmembersnames as $congmemnamekey=>$congmemnamevalue)
-                          {
-                          ?>
-                                <option value="<?php echo $congmemnamekey;?>"><?php echo $congmemnamevalue;?></option>
-                          <?php
-                          }
-                          ?>
-                      </select>
-                  </div>
-                </div>
-            <?php
-            $currentcongressman++;
-            }
-            ?>
-            <br/><br/>
-            <?php
-            $currentstaffinvestigator = 1;
-            while($currentstaffinvestigator<=MAX_STAFF_INVESTIGATORS)
-            {
-            ?>
-            <div class="control-group" style="margin:0px 0px 10px 60px;overflow:hidden">
-              <label class="control-label" for="searchinput" style="float:left;margin:0px;padding:0px">Staff Investigator Name <?php echo $currentstaffinvestigator;?></label>
-              <div class="controls" style="float:left">
-                  <select name="staffinvestigatorname[]" style="float:left;margin:0px 0px 0px 20px;">
-                      <option value="">Select Name</option>
-                      <?php
-                      foreach($array_staffinvestigatorsnames as $staffinvestigatornamekey=>$staffinvestigatornamevalue)
-                      {
-                      ?>
-                            <option value="<?php echo $staffinvestigatornamekey;?>"><?php echo $staffinvestigatornamevalue;?></option>
-                      <?php
-                      }
-                      ?>
-                  </select>
-              </div>
-            </div>
-            <?php
-            $currentstaffinvestigator++;
-            }
-            */
-            ?>
-            <h3>Witness</h3>
+                        <h3>Witness</h3>
             <div class="control-group" style="margin:0px 0px 10px 60px;overflow:hidden">
               <label class="control-label" for="searchinput" style="float:left;margin:0px;padding:0px">Witness Occupation</label>
               <div class="controls">
                   <select name="witnessoccupation" style="float:left;margin:0px 0px 0px 20px;">
                       <option value="">Select Witness Occupation</option>
-                      <?php
-                      foreach($array_witnessoccuptions as $witnessocckey=>$witnessoccvalue)
-                      {
-                      ?>
-                            <option value="<?php echo $witnessocckey;?>"><?php echo $witnessoccvalue;?></option>
-                      <?php
-                      }
-                      ?>
-                  </select>
+                                                  <option value="1">Actor</option>
+                                                  <option value="2">Assistant Project Manager</option>
+                                                  <option value="3">Author</option>
+                                                  <option value="4">Editor</option>
+                                                  <option value="5">Junior typist</option>
+                                                  <option value="6">Musician</option>
+                                                  <option value="7">Playwright</option>
+                                                  <option value="8">Producer</option>
+                                                  <option value="9">Zoologist</option>
+                                        </select>
               </div>
             </div>
             <div class="control-group" style="margin:0px 0px 10px 60px;overflow:hidden">
@@ -353,15 +159,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
               <div class="controls" style="float:left">
                   <select name="witnessorgaffilation" style="float:left;margin:0px 0px 0px 20px;">
                       <option value="">Select Witness Org. Affiliation</option>
-                      <?php
-                      foreach($array_witnessorgaffiliation as $witnessorgaffkey=>$witnessorgaffvalue)
-                      {
-                      ?>
-                            <option value="<?php echo $witnessorgaffkey;?>"><?php echo $witnessorgaffvalue;?></option>
-                      <?php
-                      }
-                      ?>
-                  </select>
+                                                  <option value="1">Abraham Lincoln Brigade</option>
+                                                  <option value="2">Colorado River War Relocation Project</option>
+                                                  <option value="3">Federal Theater Project</option>
+                                                  <option value="4">Federal Writers' Project</option>
+                                                  <option value="5">Hanover Sales Corporation</option>
+                                                  <option value="6">Office of Defense Transportation</option>
+                                                  <option value="7">People's Songs</option>
+                                                  <option value="8">Screen Actors Guild</option>
+                                                  <option value="9">Svoboda Ukrainian Newspaper</option>
+                                                  <option value="10">Walt Disney Studios</option>
+                                        </select>
               </div>
             </div>
             <div class="control-group" style="margin:0px 0px 10px 60px;overflow:hidden">
@@ -369,15 +177,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
               <div class="controls" style="float:left">
                   <select name="witnessattorney" style="float:left;margin:0px 0px 0px 20px;">
                       <option value="">Select Witness Attorney</option>
-                      <?php
-                      foreach($array_witnessattorney as $witnessattorneykey=>$witnessattorneyvalue)
-                      {
-                      ?>
-                            <option value="<?php echo $witnessattorneykey;?>"><?php echo $witnessattorneyvalue;?></option>
-                      <?php
-                      }
-                      ?>
-                  </select>
+                                                  <option value="1">Brodsky, Joseph</option>
+                                                  <option value="2">Cohn, Sol H.</option>
+                                                  <option value="3">Ross, Paul L.</option>
+                                                  <option value="4">Schwab, Irving</option>
+                                        </select>
               </div>
             </div>
             <div class="control-group" style="margin:0px 0px 10px 60px;overflow:hidden">
@@ -385,15 +189,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
               <div class="controls" style="float:left">
                   <select name="witnesstype" style="float:left;margin:0px 0px 0px 20px;">
                       <option value="">Select Witness Type</option>
-                      <?php
-                      foreach($array_witnesstype as $witnesstypekey=>$witnesstypevalue)
-                      {
-                      ?>
-                            <option value="<?php echo $witnesstypekey;?>"><?php echo $witnesstypevalue;?></option>
-                      <?php
-                      }
-                      ?>
-                  </select>
+                                                  <option value="1">Friendly</option>
+                                                  <option value="2">Unfriendly</option>
+                                        </select>
               </div>
             </div>
             <!-- Button -->
@@ -406,6 +204,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             </fieldset>
             </form>
+        
 
         <?php
         //if (count($fetcheddocuments)!=0)
